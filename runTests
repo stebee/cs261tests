@@ -1,0 +1,4 @@
+#!/bin/bash
+export TEST_ROOT_URL=https://stephen-beeman.cs261.net/api/v1
+export TEST_ENDPOINTS=motd,ssl
+node_modules/mocha/bin/mocha
