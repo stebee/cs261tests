@@ -41,5 +41,14 @@ describe('/motd', function() {
             payload.data.motd.length.should.be.greaterThan(0);
             done();
         });
+
+        it('should return a date in lastModified', function(done) {
+            payload.should.have.property('data');
+            payload.data.should.have.property('lastModified');
+            payload.data.lastModified.length.should.be.greaterThan(0);
+            var date = new Date(payload.data.lastModified);
+            date.should.be.Date();
+            done();
+        });
     });
 });
