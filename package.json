@@ -1,0 +1,26 @@
+{
+  "name": "cs261tests",
+  "version": "0.9.1",
+  "description": "Unit test suite for the CS261 semester project",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stebee/cs261tests.git"
+  },
+  "author": "Stephen Beeman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stebee/cs261tests/issues"
+  },
+  "dependencies": {
+    "mocha": "latest",
+    "should": "latest",
+    "supertest": "latest"
+  }
+}
