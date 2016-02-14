@@ -34,3 +34,6 @@ exports.shouldTest = function(endpoint) {
         return (_endpoints.indexOf(endpoint) >= 0);
     }
 }
+
+exports.knownAdmin = process.env.TEST_ADMIN;
+exports.knownAdminPassword = process.env.TEST_ADMIN_PASSWORD;
