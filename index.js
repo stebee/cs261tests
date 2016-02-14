@@ -11,7 +11,7 @@ var allTests = fs.readdirSync(testDir).filter(function(file){
 });
 
 var studentTests = {
-    'stephen.beeman': [ 'motd', 'inventory' ]
+    'stephen.beeman': [ 'motd', 'inventory', 'ssl' ]
 };
 
 var studentTestResults = {

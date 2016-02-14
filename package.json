@@ -21,6 +21,7 @@
   "dependencies": {
     "mocha": "latest",
     "should": "latest",
-    "supertest": "latest"
+    "supertest": "latest",
+    "async": "latest"
   }
 }

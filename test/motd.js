@@ -23,8 +23,11 @@ describe('/motd', function() {
 
             // Do any method-level setup here
             request(this.url).get(this.method).end(function(err, response) {
+                if (err) {
+                    console.log(this.url);
+                    return done(err);
+                }
                 payload = response.body;
-                if (err) return done(err);
                 done();
             });
         });
