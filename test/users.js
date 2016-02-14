@@ -55,7 +55,7 @@ describe('/users', function() {
         it('should return an id', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('id');
-            payload.data.id.length.should.be.greaterThan(0);
+            payload.data.id.toString().length.should.be.greaterThan(0);
             expectedAccount.id = payload.data.id;
             done();
         });
@@ -69,7 +69,7 @@ describe('/users', function() {
 
         it('should fail if username not unique', function(done) {
             var body = {
-                username: payload.username,
+                username: expectedAccount.username,
                 password: 'INVALID',
                 avatar: 'trollface.jpg'
             };
@@ -109,14 +109,14 @@ describe('/users', function() {
         it('should return a session', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('session');
-            payload.data.session.length.should.be.greaterThan(0);
+            payload.data.session.toString().length.should.be.greaterThan(0);
             done();
         });
 
         it('should return a token', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('token');
-            payload.data.token.length.should.be.greaterThan(0);
+            payload.data.token.toString().length.should.be.greaterThan(0);
             done();
         });
 
