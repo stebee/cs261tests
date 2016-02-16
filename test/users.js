@@ -27,9 +27,9 @@ describe('/users', function() {
             findAccount.username = 'TestUser' + hex.substr(5);
             findAccount.password = hex.substr(0, 5);
             findAccount.avatar = 'https://upload.wikimedia.org/wikipedia/en/4/44/MIT_Seal.svg';
+            
+            done();
         });
-
-        done();
     });
 
 
