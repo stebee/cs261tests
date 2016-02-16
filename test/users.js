@@ -150,7 +150,7 @@ describe('/users', function() {
         before(function(done) {
             this.method = method;
 
-            utils.get(this.url, '/' + expectedAccount.username + this.method, false, null, function(err, result) {
+            utils.get(this.url, '/' + expectedAccount.id + this.method, false, null, function(err, result) {
                 if (err) return done(err);
                 payload = result;
                 done();
@@ -166,14 +166,14 @@ describe('/users', function() {
         it('should return the username', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('username');
-            payload.data.id.should.equal(expectedAccount.username);
+            payload.data.username.should.equal(expectedAccount.username);
             done();
         });
 
         it('should return the avatar', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('avatar');
-            payload.data.id.should.equal(expectedAccount.avatar);
+            payload.data.avatar.should.equal(expectedAccount.avatar);
             done();
         });
     });
