@@ -24,7 +24,7 @@ exports.post = function(endpoint, method, useQuerystring, body, callback) {
 exports.get = function(endpoint, method, useQuerystring, body, callback) {
     var req = request(endpoint).get(method);
 
-    if (useQuerystring && body) {
+    if (body) {
         req.query(body);
     }
     // No request body on gets!

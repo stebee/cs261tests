@@ -7,6 +7,10 @@ var utils = require('./utils');
 
 describe('/users', function() {
     var endpoint = this.title;
+    var expectedAccount = { };
+    var findAccount = { };
+    var useQuerystring = false;
+
     before(function(done) {
         this.endpoint = endpoint;
         this.url = context.getRoot() + this.endpoint;
@@ -14,18 +18,20 @@ describe('/users', function() {
             this.skip();
 
         // Do any endpoint-level setup here
+        crypto.randomBytes(5, function(err, buf) {
+            var hex = buf.toString('hex').toUpperCase();
+            expectedAccount.username = 'TestUser' + hex.substr(0, 5);
+            expectedAccount.password = hex.substr(5);
+            expectedAccount.avatar = 'http://open-site.org/img/logos/443410.jpg';
+
+            findAccount.username = 'TestUser' + hex.substr(5);
+            findAccount.password = hex.substr(0, 5);
+            findAccount.avatar = 'https://upload.wikimedia.org/wikipedia/en/4/44/MIT_Seal.svg';
+        });
+
         done();
     });
 
-    var expectedAccount = { };
-    crypto.randomBytes(5, function(err, buf) {
-        var hex = buf.toString('hex').toUpperCase();
-        expectedAccount.username = 'TestUser' + hex.substr(0, 5);
-        expectedAccount.password = hex.substr(5);
-        expectedAccount.avatar = 'http://open-site.org/img/logos/443410.jpg';
-    });
-
-    var useQuerystring = false;
 
     describe('/create', function() {
         var method = this.title;
@@ -39,10 +45,18 @@ describe('/users', function() {
                 avatar: expectedAccount.avatar
             };
 
-            utils.post(this.url, this.method, useQuerystring, body, function(err, result) {
+            var url = this.url;
+            console.log(url);
+            console.log(method);
+
+            utils.post(url, method, useQuerystring, body, function(err, result) {
                 if (err) return done(err);
                 payload = result;
-                done();
+                utils.post(url, method, useQuerystring, findAccount, function(err, result) {
+                    if (err) return done(err);
+                    findAccount.id = result.data.id;
+                    done();
+                });
             });
         });
 
@@ -109,14 +123,16 @@ describe('/users', function() {
         it('should return a session', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('session');
-            payload.data.session.toString().length.should.be.greaterThan(0);
+            expectedAccount.session = payload.data.session.toString();
+            expectedAccount.session.length.should.be.greaterThan(0);
             done();
         });
 
         it('should return a token', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('token');
-            payload.data.token.toString().length.should.be.greaterThan(0);
+            expectedAccount.token = payload.data.token.toString();
+            expectedAccount.token.length.should.be.greaterThan(0);
             done();
         });
 
@@ -150,7 +166,7 @@ describe('/users', function() {
         before(function(done) {
             this.method = method;
 
-            utils.get(this.url, '/' + expectedAccount.id + this.method, false, null, function(err, result) {
+            utils.get(this.url, '/' + findAccount.id + this.method, false, { "_session": expectedAccount.session, "_token": expectedAccount.token }, function(err, result) {
                 if (err) return done(err);
                 payload = result;
                 done();
@@ -166,14 +182,14 @@ describe('/users', function() {
         it('should return the username', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('username');
-            payload.data.username.should.equal(expectedAccount.username);
+            payload.data.username.should.equal(findAccount.username);
             done();
         });
 
         it('should return the avatar', function(done) {
             payload.should.have.property('data');
             payload.data.should.have.property('avatar');
-            payload.data.avatar.should.equal(expectedAccount.avatar);
+            payload.data.avatar.should.equal(findAccount.avatar);
             done();
         });
     });
