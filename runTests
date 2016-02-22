@@ -1,4 +1,2 @@
 #!/bin/bash
-export TEST_ROOT_URL=http://$1.cs261.net/api/v1
-export TEST_ENDPOINTS=$2
-node_modules/mocha/bin/mocha
+node runOne.js $1 $2

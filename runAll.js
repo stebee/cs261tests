@@ -67,10 +67,15 @@ async.forEachOfSeries(studentTests, function(testsToRun, student, andThen) {
     process.env.TEST_ROOT_URL = url;
     process.env.TEST_ENDPOINTS = testsToRun;
 
+    process.env.TEST_ADMIN = 'TestAdmin';
+    process.env.TEST_ADMIN_PASSWORD = 'PixarGoodGhibliBETTER';
+
     var tested = { };
     studentTestResults[student] = tested;
 
-    cp.exec('node_modules/mocha/bin/mocha', function(err, stdout, stderr) {
+    var cmd = 'node runOne.js ' + student + ' ' + testsToRun.join(',');
+    console.log(cmd);
+    cp.exec(cmd, function(err, stdout, stderr) {
         if (!err) {
             tested.stdout = stdout;
             tested.stderr = stderr;
