@@ -13,13 +13,14 @@ var allTests = fs.readdirSync(testDir).filter(function(file){
 });
 
 var studentTests = {
-    'scott-smith': [ 'motd' ],
-    'danny-wittenauer': [ 'motd' ],
-    'mark-lauzon': [ 'motd' ],
-    'j-heruty': [ 'motd' ],
-    'andrew-taylor': [ 'motd' ],
-    'joshua-shlemmer': [ 'motd' ],
-    'j-fisher': [ 'motd' ],
+    'scott-smith': [ 'motd', 'items' ],
+    'danny-wittenauer': [ 'motd', 'items' ],
+    'mark-lauzon': [ 'motd', 'items' ],
+    'j-heruty': [ 'motd', 'items' ],
+    'andrew-taylor': [ 'motd', 'items' ],
+    'joshua-shlemmer': [ 'motd', 'items' ],
+    'j-fisher': [ 'motd', 'items' ]/*,
+
     'nlouks': [ 'motd' ],
     'chad-george': [ 'motd' ],
     'ismail-obaid': [ 'motd' ],
@@ -49,7 +50,7 @@ var studentTests = {
     'daniel-oliveira': [ 'motd' ],
     'uong-j': [ 'motd' ],
     'tristan-schneider': [ 'motd' ],
-    'hsihung-shih': [ 'motd' ]
+    'hsihung-shih': [ 'motd' ]*/
 };
 
 var studentTestResults = {
