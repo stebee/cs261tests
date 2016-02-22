@@ -15,13 +15,10 @@ describe('/users', function() {
     findAccount.password = hex.substr(0, 5);
     findAccount.avatar = 'https://upload.wikimedia.org/wikipedia/en/4/44/MIT_Seal.svg';
 
-    before(function(done) {
-        if (!testContext.shouldTest(endpoint))
-            this.skip();
-        done();
-    });
-
     describe('/create', function() {
+        if (!testContext.shouldTest(endpoint))
+            done();
+
         var method = this.title;
         var payload;
         before(function(done) {
@@ -84,7 +81,7 @@ describe('/users', function() {
         });
     });
 
-    describe('/login', function() {
+    describe('/login', function(done) {
         var method = this.title;
         var payload;
 
@@ -218,9 +215,6 @@ describe('/users', function() {
         var payloads = { };
 
         before(function(done) {
-            if (!testContext.shouldTest(endpoint))
-                this.skip();
-
             async.series([
                 function(callback) {
                     utils.get(rootUrl, '/login', true, { username: findAccount.username, password: findAccount.password }, function(err, result) {

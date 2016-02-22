@@ -13,7 +13,7 @@ exports.post = function(endpoint, method, useQuerystring, body, callback) {
         }
     }
 
-    //console.log('POST ' + JSON.stringify(req) + JSON.stringify(body));
+    console.log('POST ' + JSON.stringify(req) + JSON.stringify(body));
 
     req.end(function(err, response) {
         if (err) return callback(err);
@@ -29,7 +29,7 @@ exports.get = function(endpoint, method, useQuerystring, body, callback) {
     }
     // No request body on gets!
 
-    //console.log('GET ' + JSON.stringify(req) + JSON.stringify(body));
+    console.log('GET ' + JSON.stringify(req) + JSON.stringify(body));
 
     req.end(function(err, response) {
         if (err) return callback(err);

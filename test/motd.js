@@ -3,8 +3,6 @@ describe('/motd', function() {
     before(function(done) {
         this.endpoint = endpoint;
         this.url = testContext.getRoot() + this.endpoint;
-        if (!testContext.shouldTest(this.endpoint))
-            this.skip();
 
         // Do any endpoint-level setup here
         done();
