@@ -1,14 +1,9 @@
-var assert = require('assert');
-var should = require('should');
-var request = require('supertest');
-var context = require('./context');
-
 describe('/motd', function() {
     var endpoint = this.title;
     before(function(done) {
         this.endpoint = endpoint;
-        this.url = context.getRoot() + this.endpoint;
-        if (!context.shouldTest(this.endpoint))
+        this.url = testContext.getRoot() + this.endpoint;
+        if (!testContext.shouldTest(this.endpoint))
             this.skip();
 
         // Do any endpoint-level setup here

@@ -3,6 +3,8 @@ var Mocha = require('mocha'),
     path = require('path'),
     async = require('async');
 
+var cp = require('child_process');
+
 // Scan the 'test' directory for all JS files
 var testDir = 'test';
 var allTests = fs.readdirSync(testDir).filter(function(file){
@@ -11,7 +13,43 @@ var allTests = fs.readdirSync(testDir).filter(function(file){
 });
 
 var studentTests = {
-    'stephen.beeman': [ 'motd', 'inventory', 'ssl' ]
+    'scott-smith': [ 'motd' ],
+    'danny-wittenauer': [ 'motd' ],
+    'mark-lauzon': [ 'motd' ],
+    'j-heruty': [ 'motd' ],
+    'andrew-taylor': [ 'motd' ],
+    'joshua-shlemmer': [ 'motd' ],
+    'j-fisher': [ 'motd' ],
+    'nlouks': [ 'motd' ],
+    'chad-george': [ 'motd' ],
+    'ismail-obaid': [ 'motd' ],
+    'j-peter': [ 'motd' ],
+    'chase-hutchens': [ 'motd' ],
+    'atownsend': [ 'motd' ],
+    'j-shirley': [ 'motd' ],
+    'greg-walls': [ 'motd' ],
+    'eric-li': [ 'motd' ],
+    'saerom-sim': [ 'motd' ],
+    'kali-b': [ 'motd' ],
+    'yoonyoung-k': [ 'motd' ],
+    'c-eichner': [ 'motd' ],
+    'euntaek-park': [ 'motd' ],
+    'ryan-davidson': [ 'motd' ],
+    'dylan-petterson': [ 'motd' ],
+    'r-pannkuk': [ 'motd' ],
+    'neil-frankwick': [ 'motd' ],
+    'christopher-j': [ 'motd' ],
+    'blake-richardson': [ 'motd' ],
+    'michael-rosen': [ 'motd' ],
+    'joel-shook': [ 'motd' ],
+    'craig-steyn': [ 'motd' ],
+    'river-riddle': [ 'motd' ],
+    'c-john': [ 'motd' ],
+    'd-jacobsen': [ 'motd' ],
+    'daniel-oliveira': [ 'motd' ],
+    'uong-j': [ 'motd' ],
+    'tristan-schneider': [ 'motd' ],
+    'hsihung-shih': [ 'motd' ]
 };
 
 var studentTestResults = {
@@ -20,13 +58,6 @@ var studentTestResults = {
 
 // For each student, synchronously run all the appropriate tests
 async.forEachOfSeries(studentTests, function(testsToRun, student, andThen) {
-    var mocha = new Mocha();
-    allTests.forEach(function(file){
-        mocha.addFile(
-            path.join(testDir, file)
-        );
-    });
-
     var url = 'http';
     if (testsToRun.indexOf('ssl') >= 0)
         url += 's';
@@ -39,60 +70,20 @@ async.forEachOfSeries(studentTests, function(testsToRun, student, andThen) {
     var tested = { };
     studentTestResults[student] = tested;
 
-    // Run the tests
-    var tests = mocha.run();
-
-    tests.on('start', function() {
-        console.log('Starting tests for ' + student + '...');
-    });
-
-    tests.on('end', function() {
-        andThen();
-    });
-
-    tests.on('suite', function(suite) {
-        if (!suite.parent) return;
-        if (!suite.parent.title) {
-            // If suite.parent.title is blank, then we're an endpoint
-            var endpoint = suite.title.substr(1);
-            tested[endpoint] = { passed: 0, failed: 0, failures: [ ] };
+    cp.exec('node_modules/mocha/bin/mocha', function(err, stdout, stderr) {
+        if (!err) {
+            tested.stdout = stdout;
+            tested.stderr = stderr;
         }
-    });
-
-    tests.on('pass', function(test) {
-        var endpoint = test.parent.parent.title.substr(1);
-        tested[endpoint].passed += 1;
-    });
-
-    tests.on('fail', function(test, err) {
-        var endpoint = test.parent.parent.title.substr(1);
-        var method = test.parent.title.substr(1);
-        tested[endpoint].failed += 1;
-        tested[endpoint].failures.push(test.parent.title + ' ' + test.title);
+        andThen();
     });
 }, function(err) {
     for (var student in studentTestResults) {
-        console.log(student + ':');
-        for (var endpoint in studentTestResults[student]) {
-            var result = studentTestResults[student][endpoint];
-            if (!result.passed && !result.failed) {
-                console.log('---- ' + endpoint + ' skipped!');
-            }
-            else {
-                var pct = Math.floor(100 * result.passed / (result.passed + result.failed));
-                var pctString = '' + pct;
-                while (pctString.length < 3)
-                    pctString = ' ' + pctString;
-
-                console.log('    ' + pctString + '% ' + endpoint);
-            }
-
-            if (result.failed > 0) {
-                for (var key in result.failures) {
-                    console.log('         * ' + result.failures[key]);
-                }
-            }
+        console.log('**** ' + student);
+        if (studentTestResults[student].stdout) {
+            console.log(studentTestResults[student].stdout);
         }
+        console.log('**********');
     }
 });
 
