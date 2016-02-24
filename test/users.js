@@ -16,9 +16,6 @@ describe('/users', function() {
     findAccount.avatar = 'https://upload.wikimedia.org/wikipedia/en/4/44/MIT_Seal.svg';
 
     describe('/create', function() {
-        if (!testContext.shouldTest(endpoint))
-            done();
-
         var method = this.title;
         var payload;
         before(function(done) {

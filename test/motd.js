@@ -15,12 +15,11 @@ describe('/motd', function() {
             this.method = method;
 
             // Do any method-level setup here
-            request(this.url).get(this.method).end(function(err, response) {
+            utils.get(this.url, this.method, false, null, function(err, response) {
                 if (err) {
-                    console.log(this.url);
                     return done(err);
                 }
-                payload = response.body;
+                payload = response;
                 done();
             });
         });
