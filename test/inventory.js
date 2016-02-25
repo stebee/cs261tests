@@ -11,8 +11,11 @@ describe('/inventory', function() {
 
     function addAuth(obj) {
         var result = JSON.parse(JSON.stringify(obj));
-        result["_session"] = credentials.session;
-        result["_token"] = credentials.token;
+        var underscore = '_';
+        if (testContext.disableCredentialUnderscores)
+            underscore = '';
+        result[underscore + "session"] = credentials.session;
+        result[underscore + "token"] = credentials.token;
         return result;
     }
 

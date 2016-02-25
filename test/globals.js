@@ -12,7 +12,6 @@ global.testContext = require('./context');
 global.async = require('async');
 
 before(function(done) {
-    console.log("INSECURE");
     // The following line disables verification of SSL certificates, allowing use of self-signed certs
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     done();

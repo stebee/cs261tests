@@ -37,3 +37,5 @@ exports.shouldTest = function(endpoint) {
 
 exports.knownAdmin = process.env.TEST_ADMIN;
 exports.knownAdminPassword = process.env.TEST_ADMIN_PASSWORD;
+
+exports.disableCredentialUnderscores = (process.env.DISABLE_UNDERSCORES == true);

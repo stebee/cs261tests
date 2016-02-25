@@ -16,6 +16,14 @@ var student = process.argv[2];
 var testsToRun = process.argv[3].split(',');
 testsToRun.push('globals');
 
+var allOptions = [ ];
+if (process.argv[4]) {
+    allOptions = process.argv[4].split(',');
+}
+allOptions.forEach(function(option) {
+    process.env[option.toUpperCase()] = 1;
+});
+
 var url = 'http';
 if (testsToRun.indexOf('ssl') >= 0)
     url += 's';
