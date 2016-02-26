@@ -1,6 +1,7 @@
 var request = require('supertest');
 
-exports.post = function(endpoint, method, useQuerystring, body, callback) {
+exports.post = function(endpoint, method, body, callback) {
+    var useQuerystring = process.env.PREFER_QUERYSTRING;
     var req = request(endpoint).post(method);
 
     if (body) {
@@ -25,7 +26,7 @@ exports.post = function(endpoint, method, useQuerystring, body, callback) {
     });
 }
 
-exports.get = function(endpoint, method, useQuerystring, body, callback) {
+exports.get = function(endpoint, method, body, callback) {
     var req = request(endpoint).get(method);
 
     if (body) {

@@ -24,7 +24,7 @@ describe('/inventory', function() {
     before(function(done) {
         async.series([
             function(callback) {
-                utils.get(testContext.getRoot() + '/users', '/login', true, { username: testContext.knownAdmin, password: testContext.knownAdminPassword }, function(err, result) {
+                utils.get(testContext.getRoot() + '/users', '/login', { username: testContext.knownAdmin, password: testContext.knownAdminPassword }, function(err, result) {
                     if (err) return callback(err);
                     credentials.session = result.data.session;
                     credentials.token = result.data.token;
@@ -38,7 +38,7 @@ describe('/inventory', function() {
                             if (err) return callback(err);
                             credentials.id = result.data.id;
 
-                            utils.get(testContext.getRoot() + '/users/', credentials.id + '/get', true, { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
+                            utils.get(testContext.getRoot() + '/users/', credentials.id + '/get', { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
                                 if (err) return callback(err);
                                 credentials.isAdmin = result.data.isAdmin;
                                 callback();
@@ -49,11 +49,11 @@ describe('/inventory', function() {
             },
 
             function(callback) {
-                utils.post(testContext.getRoot() + '/items', '/create', false, addAuth({ shortname: testItem.shortname }), function(err, result) {
+                utils.post(testContext.getRoot() + '/items', '/create', addAuth({ shortname: testItem.shortname }), function(err, result) {
                     if (err) return callback(err);
                     testItem.id = result.data.id;
 
-                    utils.post(testContext.getRoot() + '/items', '/' + testItem.id + '/update', false, addAuth({ isStackable: true }), function(err, result) {
+                    utils.post(testContext.getRoot() + '/items', '/' + testItem.id + '/update', addAuth({ isStackable: true }), function(err, result) {
                         if (err) return callback(err);
                         testItem.isStackable = true;
                         callback();
@@ -62,7 +62,7 @@ describe('/inventory', function() {
             },
 
             function(callback) {
-                utils.post(testContext.getRoot() + '/items', '/create', false, addAuth({ shortname: otherTestItem.shortname }), function(err, result) {
+                utils.post(testContext.getRoot() + '/items', '/create', addAuth({ shortname: otherTestItem.shortname }), function(err, result) {
                     if (err) return callback(err);
                     otherTestItem.id = result.data.id;
                     callback();
@@ -70,7 +70,7 @@ describe('/inventory', function() {
             },
 
             function(callback) {
-                utils.post(testContext.getRoot() + '/users', '/create', false, testUser, function(err, result) {
+                utils.post(testContext.getRoot() + '/users', '/create', testUser, function(err, result) {
                     if (err) return callback(err);
                     testUser.id = result.data.id;
                     callback();
@@ -118,7 +118,7 @@ describe('/inventory', function() {
                 ]
             };
 
-            utils.post(testContext.getRoot() + '/users', '/' + testUser.id + '/inventory/create', false, addAuth(body), function(err, result) {
+            utils.post(testContext.getRoot() + '/users', '/' + testUser.id + '/inventory/create', addAuth(body), function(err, result) {
                 if (err) return done(err);
                 payload = result;
 
@@ -162,7 +162,7 @@ describe('/inventory', function() {
 
             async.series([
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.testItem = result;
                         callback();
@@ -170,7 +170,7 @@ describe('/inventory', function() {
                 },
 
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.otherTestItemFail = result;
                         callback();
@@ -178,7 +178,7 @@ describe('/inventory', function() {
                 },
 
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 0 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 0 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.otherTestItemPass = result;
                         callback();
@@ -229,7 +229,7 @@ describe('/inventory', function() {
 
             async.series([
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.testItem = result;
                         callback();
@@ -237,7 +237,7 @@ describe('/inventory', function() {
                 },
 
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.otherTestItemFail = result;
                         callback();
@@ -245,7 +245,7 @@ describe('/inventory', function() {
                 },
 
                 function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 0 }), function(err, result) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 0 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.otherTestItemPass = result;
                         callback();

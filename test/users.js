@@ -2,7 +2,6 @@ describe('/users', function() {
     var endpoint = this.title;
     var expectedAccount = { };
     var findAccount = { };
-    var useQuerystring = false;
     var rootUrl = testContext.getRoot() + endpoint;
 
     // Do any endpoint-level setup here
@@ -27,10 +26,10 @@ describe('/users', function() {
                 avatar: expectedAccount.avatar
             };
 
-            utils.post(rootUrl, method, useQuerystring, body, function(err, result) {
+            utils.post(rootUrl, method, body, function(err, result) {
                 if (err) return done(err);
                 payload = result;
-                utils.post(rootUrl, method, useQuerystring, findAccount, function(err, result) {
+                utils.post(rootUrl, method, findAccount, function(err, result) {
                     if (err) return done(err);
                     findAccount.id = result.data.id;
                     done();
@@ -66,7 +65,7 @@ describe('/users', function() {
                 avatar: 'trollface.jpg'
             };
 
-            utils.post(rootUrl, this.method, useQuerystring, body, function(err, result) {
+            utils.post(rootUrl, this.method, body, function(err, result) {
                 if (err) return done(err);
                 result.should.have.property('status');
                 result.status.should.equal('fail');
@@ -85,7 +84,7 @@ describe('/users', function() {
         before(function(done) {
             this.method = method;
 
-            utils.get(rootUrl, this.method, true, { username: expectedAccount.username, password: expectedAccount.password }, function(err, result) {
+            utils.get(rootUrl, this.method, { username: expectedAccount.username, password: expectedAccount.password }, function(err, result) {
                 if (err) return done(err);
                 payload = result;
                 done();
@@ -115,7 +114,7 @@ describe('/users', function() {
         });
 
         it('should fail if password wrong', function(done) {
-            utils.get(rootUrl, this.method, true, { username: expectedAccount.username, password: expectedAccount.password + 'NOTHISISNOTTHEPASSWORD' }, function(err, result) {
+            utils.get(rootUrl, this.method, { username: expectedAccount.username, password: expectedAccount.password + 'NOTHISISNOTTHEPASSWORD' }, function(err, result) {
                 if (err) return done(err);
                 result.should.have.property('status');
                 result.status.should.equal('fail');
@@ -126,7 +125,7 @@ describe('/users', function() {
         });
 
         it('should fail if username wrong', function(done) {
-            utils.get(rootUrl, this.method, true, { username: expectedAccount.username + 'THISUSERDOESNOTEXIST', password: expectedAccount.password }, function(err, result) {
+            utils.get(rootUrl, this.method, { username: expectedAccount.username + 'THISUSERDOESNOTEXIST', password: expectedAccount.password }, function(err, result) {
                 if (err) return done(err);
                 result.should.have.property('status');
                 result.status.should.equal('fail');
@@ -144,7 +143,7 @@ describe('/users', function() {
         before(function(done) {
             this.method = method;
 
-            utils.get(rootUrl, '/' + findAccount.id + this.method, false, { "_session": expectedAccount.session, "_token": expectedAccount.token }, function(err, result) {
+            utils.get(rootUrl, '/' + findAccount.id + this.method, { "_session": expectedAccount.session, "_token": expectedAccount.token }, function(err, result) {
                 if (err) return done(err);
                 payload = result;
                 done();
@@ -214,7 +213,7 @@ describe('/users', function() {
         before(function(done) {
             async.series([
                 function(callback) {
-                    utils.get(rootUrl, '/login', true, { username: findAccount.username, password: findAccount.password }, function(err, result) {
+                    utils.get(rootUrl, '/login', { username: findAccount.username, password: findAccount.password }, function(err, result) {
                         if (err) return done(err);
                         payloads.credentials = result.data;
                         callback();
@@ -228,7 +227,7 @@ describe('/users', function() {
                         isAdmin: true
                     };
 
-                    utils.post(rootUrl, '/' + findAccount.id + method, false, body, function(err, result) {
+                    utils.post(rootUrl, '/' + findAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
                         payloads.isAdmin = result;
                         callback();
@@ -243,7 +242,7 @@ describe('/users', function() {
                         newPassword: 'ALSONOTTHEPASSSWORD'
                     };
 
-                    utils.post(rootUrl, '/' + findAccount.id + method, false, body, function(err, result) {
+                    utils.post(rootUrl, '/' + findAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
                         payloads.badPassword = result;
                         callback();
@@ -257,7 +256,7 @@ describe('/users', function() {
                         avatar: 'http://lazytechguys.com/wp-content/uploads/2012/04/Wing-Commander-2-Screenshots-10.gif'
                     };
 
-                    utils.post(rootUrl, '/' + expectedAccount.id + method, false, body, function(err, result) {
+                    utils.post(rootUrl, '/' + expectedAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
                         payloads.avatar = result;
                         payloads.avatar.expectedValue = body.avatar;
@@ -273,10 +272,10 @@ describe('/users', function() {
                         newPassword: 'NEWPASSWORD'
                     };
 
-                    utils.post(rootUrl, '/' + findAccount.id + method, false, body, function(err, result) {
+                    utils.post(rootUrl, '/' + findAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
                         payloads.changedPassword = result;
-                        utils.get(rootUrl, '/login', true, { username: findAccount.username, password: body.newPassword }, function(err, loginResult) {
+                        utils.get(rootUrl, '/login', { username: findAccount.username, password: body.newPassword }, function(err, loginResult) {
                             if (err) return callback(err);
                             payloads.changedPasswordLogin = loginResult;
                             callback();

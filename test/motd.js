@@ -15,7 +15,7 @@ describe('/motd', function() {
             this.method = method;
 
             // Do any method-level setup here
-            utils.get(this.url, this.method, false, null, function(err, response) {
+            utils.get(this.url, this.method, null, function(err, response) {
                 if (err) {
                     return done(err);
                 }

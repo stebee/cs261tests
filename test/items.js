@@ -10,21 +10,16 @@ describe('/items', function() {
 
     function addAuth(obj) {
         var result = JSON.parse(JSON.stringify(obj));
-<<<<<<< HEAD
         var underscore = '_';
-        if (testContext.disableCredentialUnderscores)
+        if (process.env.DISABLE_UNDERSCORES)
             underscore = '';
         result[underscore + "session"] = credentials.session;
         result[underscore + "token"] = credentials.token;
-=======
-        result["session"] = credentials.session;
-        result["token"] = credentials.token;
->>>>>>> moving bug fixes to begin new branch
         return result;
     }
 
     before(function(done) {
-        utils.get(testContext.getRoot() + '/users', '/login', true, { username: testContext.knownAdmin, password: testContext.knownAdminPassword }, function(err, result) {
+        utils.get(testContext.getRoot() + '/users', '/login', { username: testContext.knownAdmin, password: testContext.knownAdminPassword }, function(err, result) {
             if (err) return done(err);
             credentials.session = result.data.session;
             credentials.token = result.data.token;
@@ -34,11 +29,11 @@ describe('/items', function() {
                 done();
             }
             else {
-                utils.get(testContext.getRoot() + '/users', '/find/' + testContext.knownAdmin, true, { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
+                utils.get(testContext.getRoot() + '/users', '/find/' + testContext.knownAdmin, addAuth({ }), function(err, result) {
                     if (err) return done(err);
                     credentials.id = result.data.id;
 
-                    utils.get(testContext.getRoot() + '/users/', credentials.id + '/get', true, { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
+                    utils.get(testContext.getRoot() + '/users/', credentials.id + '/get', addAuth({ }), function(err, result) {
                         if (err) return done(err);
                         credentials.isAdmin = result.data.isAdmin;
                         done();
@@ -68,11 +63,11 @@ describe('/items', function() {
         before(function(done) {
             this.method = method;
 
-            utils.post(rootUrl, method, false, addAuth({ shortname: testItem.shortname }), function(err, result) {
+            utils.post(rootUrl, method, addAuth({ shortname: testItem.shortname }), function(err, result) {
                 if (err) return done(err);
                 payload = result;
 
-                utils.post(rootUrl, method, false, addAuth({ shortname: otherTestItem.shortname }), function(err, result) {
+                utils.post(rootUrl, method, addAuth({ shortname: otherTestItem.shortname }), function(err, result) {
                     if (result && result.data) {
                         otherTestItem.id = result.data.id;
 
@@ -109,7 +104,7 @@ describe('/items', function() {
 
         it('should fail if shortname not unique', function(done) {
 
-            utils.post(rootUrl, this.method, false, addAuth({ shortname: testItem.shortname }), function(err, result) {
+            utils.post(rootUrl, this.method, addAuth({ shortname: testItem.shortname }), function(err, result) {
                 if (err) return done(err);
                 result.should.have.property('status');
                 result.status.should.equal('fail');
@@ -150,7 +145,7 @@ describe('/items', function() {
                 function(callback) {
                     testItem.name = 'A test name';
 
-                    utils.post(rootUrl, '/' + testItem.id + method, false, addAuth({ name: testItem.name }), function(err, result) {
+                    utils.post(rootUrl, '/' + testItem.id + method, addAuth({ name: testItem.name }), function(err, result) {
                         if (err) return callback(err);
                         payloads.name = result;
                         callback();
@@ -160,7 +155,7 @@ describe('/items', function() {
                 function(callback) {
                     testItem.description = 'A test description.\nThese can even have carriage returns in them!';
 
-                    utils.post(rootUrl, '/' + testItem.id + method, false, addAuth({ description: testItem.description }), function(err, result) {
+                    utils.post(rootUrl, '/' + testItem.id + method, addAuth({ description: testItem.description }), function(err, result) {
                         if (err) return callback(err);
                         payloads.description = result;
                         callback();
@@ -170,7 +165,7 @@ describe('/items', function() {
                 function(callback) {
                     testItem.isStackable = true;
 
-                    utils.post(rootUrl, '/' + testItem.id + method, false, addAuth({ isStackable: testItem.isStackable }), function(err, result) {
+                    utils.post(rootUrl, '/' + testItem.id + method, addAuth({ isStackable: testItem.isStackable }), function(err, result) {
                         if (err) return callback(err);
                         payloads.isStackable = result;
                         callback();
@@ -180,7 +175,7 @@ describe('/items', function() {
                 function(callback) {
                     testItem.attributes = { movie: 'Deadpool', maximumEffort: true, payday: 152193853 };
 
-                    utils.post(rootUrl, '/' + testItem.id + method, false, addAuth({ attributes: testItem.attributes }), function(err, result) {
+                    utils.post(rootUrl, '/' + testItem.id + method, addAuth({ attributes: testItem.attributes }), function(err, result) {
                         if (err) return callback(err);
                         payloads.attributes = result;
                         callback();
@@ -202,7 +197,7 @@ describe('/items', function() {
         var payload;
 
         before(function(done) {
-            utils.get(rootUrl, '/' + testItem.id + method, true, addAuth({ }), function(err, result) {
+            utils.get(rootUrl, '/' + testItem.id + method, addAuth({ }), function(err, result) {
                 if (err) return callback(err);
                 payload = result;
                 done();
@@ -244,7 +239,7 @@ describe('/items', function() {
         var expected = [ otherTestItem, { }, testItem ];
 
         before(function(done) {
-            utils.get(rootUrl, method, true, addAuth({ shortnames: [ expected[0].shortname, 'NOTAREALSHORTNAME', expected[2].shortname ] }), function(err, result) {
+            utils.get(rootUrl, method, addAuth({ shortnames: [ expected[0].shortname, 'NOTAREALSHORTNAME', expected[2].shortname ] }), function(err, result) {
                 if (err) return callback(err);
                 payload = result;
                 // TODO HACK
@@ -304,7 +299,7 @@ describe('/items', function() {
         var index = { };
 
         before(function(done) {
-            utils.get(rootUrl, method, true, addAuth({ }), function(err, result) {
+            utils.get(rootUrl, method, addAuth({ }), function(err, result) {
                 if (err) return callback(err);
                 payload = result;
                 // TODO HACK
