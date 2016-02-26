@@ -9,10 +9,12 @@ describe('/inventory', function() {
     var otherTestItem = { shortname: 'INVENTORY' + hex.substring(4) };
     var testUser = { username: 'INVENTORY' + hex };
 
+    var inventory = { };
+
     function addAuth(obj) {
         var result = JSON.parse(JSON.stringify(obj));
         var underscore = '_';
-        if (testContext.disableCredentialUnderscores)
+        if (process.env.DISABLE_UNDERSCORES)
             underscore = '';
         result[underscore + "session"] = credentials.session;
         result[underscore + "token"] = credentials.token;
@@ -109,31 +111,181 @@ describe('/inventory', function() {
         before(function(done) {
             this.method = method;
 
-            console.log(testUser);
             var body = {
-                userid: testUser.id,
                 items: [
                     { itemid: testItem.id, quantity: 5 },
                     { shortname: otherTestItem.shortname }
                 ]
             };
 
-            utils.post(rootUrl, method, false, addAuth(body), function(err, result) {
+            utils.post(testContext.getRoot() + '/users', '/' + testUser.id + '/inventory/create', false, addAuth(body), function(err, result) {
                 if (err) return done(err);
                 payload = result;
-                console.log(payload);
+
+                // TODO HACK
+                if (!payload.data)
+                    payload.data = { inventory: payload.inventory };
+
                 done();
             });
         });
 
         it('should return success', function(done) {
-            console.log(testUser);
             payload.should.have.property('status');
             payload.status.should.equal('success');
+            payload.should.have.property('data');
+            payload.data.should.have.property('inventory');
+            payload.data.inventory.should.be.Array();
+
+            payload.data.inventory[0].should.be.Object();
+            payload.data.inventory[0].should.have.property('id');
+            payload.data.inventory[0].shortname.should.equal(testItem.shortname);
+            payload.data.inventory[0].quantity.should.equal(5);
+            inventory.testItem = payload.data.inventory[0];
+
+            payload.data.inventory[1].should.be.Object();
+            payload.data.inventory[1].should.have.property('id');
+            payload.data.inventory[1].itemid.should.equal(otherTestItem.id);
+            payload.data.inventory[1].quantity.should.equal(1);
+            inventory.otherTestItem = payload.data.inventory[1];
+
             done();
         });
     });
 
+    describe('/update with method suffix', function() {
+        var method = this.title;
+        var payloads = { };
+
+        before(function(done) {
+            var actualMethod = method;
+
+            async.series([
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.testItem = result;
+                        callback();
+                    });
+                },
+
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.otherTestItemFail = result;
+                        callback();
+                    });
+                },
+
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 0 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.otherTestItemPass = result;
+                        callback();
+                    });
+                }
+            ], function(err) {
+                done();
+            });
+        });
+
+        it('should succeed when changing quantity of stackable item', function(done) {
+            payloads.testItem.should.have.property('status');
+            payloads.testItem.status.should.equal('success');
+            payloads.testItem.should.have.property('data');
+            payloads.testItem.data.should.have.property('quantity');
+            payloads.testItem.data.quantity.should.equal(10);
+
+            done();
+        });
+
+        it('should fail when changing quantity of non-stackable item to greater than one', function(done) {
+            payloads.otherTestItemFail.should.have.property('status');
+            payloads.otherTestItemFail.status.should.equal('fail');
+            payloads.otherTestItemFail.should.have.property('reason');
+            payloads.otherTestItemFail.reason.should.have.property('quantity');
+            payloads.otherTestItemFail.reason.quantity.toLowerCase().should.equal('invalid');
+
+            done();
+        });
+
+        it('should succeed when changing quantity of non-stackable item to zero', function(done) {
+            payloads.otherTestItemPass.should.have.property('status');
+            payloads.otherTestItemPass.status.should.equal('success');
+            payloads.otherTestItemPass.should.have.property('data');
+            payloads.otherTestItemPass.data.should.have.property('quantity');
+            payloads.otherTestItemPass.data.quantity.should.equal(0);
+
+            done();
+        });
+    });
+
+    describe('/update without method suffix', function() {
+        var method = this.title;
+        var payloads = { };
+
+        before(function(done) {
+            var actualMethod = '';//method;
+
+            async.series([
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.testItem = result;
+                        callback();
+                    });
+                },
+
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 10 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.otherTestItemFail = result;
+                        callback();
+                    });
+                },
+
+                function(callback) {
+                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, false, addAuth({ quantity: 0 }), function(err, result) {
+                        if (err) return callback(err);
+                        payloads.otherTestItemPass = result;
+                        callback();
+                    });
+                }
+            ], function(err) {
+                done();
+            });
+        });
+
+        it('should succeed when changing quantity of stackable item', function(done) {
+            payloads.testItem.should.have.property('status');
+            payloads.testItem.status.should.equal('success');
+            payloads.testItem.should.have.property('data');
+            payloads.testItem.data.should.have.property('quantity');
+            payloads.testItem.data.quantity.should.equal(10);
+
+            done();
+        });
+
+        it('should fail when changing quantity of non-stackable item to greater than one', function(done) {
+            payloads.otherTestItemFail.should.have.property('status');
+            payloads.otherTestItemFail.status.should.equal('fail');
+            payloads.otherTestItemFail.should.have.property('reason');
+            payloads.otherTestItemFail.reason.should.have.property('quantity');
+            payloads.otherTestItemFail.reason.quantity.toLowerCase().should.equal('invalid');
+
+            done();
+        });
+
+        it('should succeed when changing quantity of non-stackable item to zero', function(done) {
+            payloads.otherTestItemPass.should.have.property('status');
+            payloads.otherTestItemPass.status.should.equal('success');
+            payloads.otherTestItemPass.should.have.property('data');
+            payloads.otherTestItemPass.data.should.have.property('quantity');
+            payloads.otherTestItemPass.data.quantity.should.equal(0);
+
+            done();
+        });
+    });
 
 
 

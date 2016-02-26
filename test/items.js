@@ -10,11 +10,16 @@ describe('/items', function() {
 
     function addAuth(obj) {
         var result = JSON.parse(JSON.stringify(obj));
+<<<<<<< HEAD
         var underscore = '_';
         if (testContext.disableCredentialUnderscores)
             underscore = '';
         result[underscore + "session"] = credentials.session;
         result[underscore + "token"] = credentials.token;
+=======
+        result["session"] = credentials.session;
+        result["token"] = credentials.token;
+>>>>>>> moving bug fixes to begin new branch
         return result;
     }
 

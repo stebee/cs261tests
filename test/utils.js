@@ -13,9 +13,10 @@ exports.post = function(endpoint, method, useQuerystring, body, callback) {
         }
     }
 
-    //console.log('POST ' + JSON.stringify(req) + JSON.stringify(body));
+    console.log('POST ' + JSON.stringify(req) + JSON.stringify(body));
 
     req.end(function(err, response) {
+        console.log(response.text);
         if (response.text && (!response.body || !Object.keys(response.body).length)) {
             response.body = JSON.parse(response.text);
         }
@@ -32,10 +33,11 @@ exports.get = function(endpoint, method, useQuerystring, body, callback) {
     }
     // No request body on gets!
 
-    //console.log('GET ' + JSON.stringify(req) + JSON.stringify(body));
+   // console.log('GET ' + JSON.stringify(req) + JSON.stringify(body));
 
     req.end(function(err, response) {
         if (response.text && (!response.body || !Object.keys(response.body).length)) {
+            //console.log(response.text);
             response.body = JSON.parse(response.text);
         }
         if (err) return callback(err);
