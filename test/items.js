@@ -240,7 +240,6 @@ describe('/items', function() {
         before(function(done) {
             expected = [ JSON.parse(JSON.stringify(otherTestItem)), { }, JSON.parse(JSON.stringify(testItem)) ];
             expected[0].attributes = { };
-            expected[2].attributes = { };
 
             utils.get(rootUrl, method, addAuth({ shortnames: [ expected[0].shortname, 'NOTAREALSHORTNAME', expected[2].shortname ] }), function(err, result) {
                 if (err) return callback(err);
