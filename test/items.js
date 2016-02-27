@@ -236,9 +236,13 @@ describe('/items', function() {
         var method = this.title;
         var payload;
 
-        var expected = [ otherTestItem, { }, testItem ];
+        var expected;
 
         before(function(done) {
+            expected = [ JSON.parse(JSON.stringify(otherTestItem)), { }, JSON.parse(JSON.stringify(testItem)) ];
+            expected[0].attributes = { };
+            expected[2].attributes = { };
+
             utils.get(rootUrl, method, addAuth({ shortnames: [ expected[0].shortname, 'NOTAREALSHORTNAME', expected[2].shortname ] }), function(err, result) {
                 if (err) return callback(err);
                 payload = result;
@@ -306,8 +310,10 @@ describe('/items', function() {
                 if (!payload.data)
                     payload.data = { items: payload.items };
 
-                expected[testItem.shortname] = testItem;
-                expected[otherTestItem.shortname] = otherTestItem;
+                expected[testItem.shortname] = JSON.parse(JSON.stringify(testItem));
+                expected[testItem.shortname].attributes = { };
+                expected[otherTestItem.shortname] = JSON.parse(JSON.stringify(otherTestItem));
+                expected[otherTestItem.shortname].attributes = { };
 
                 done();
             });

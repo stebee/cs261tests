@@ -7,7 +7,7 @@ describe('/inventory', function() {
     var hex = crypto.randomBytes(4).toString('hex').toUpperCase();
     var testItem = { shortname: 'INVENTORY' + hex.substring(0, 4) };
     var otherTestItem = { shortname: 'INVENTORY' + hex.substring(4) };
-    var testUser = { username: 'INVENTORY' + hex };
+    var testUser = { username: 'INVENTORY' + hex, password: 'INVENTORY' + hex + 'PASSWORD' };
 
     var inventory = { };
 
@@ -34,7 +34,7 @@ describe('/inventory', function() {
                         callback();
                     }
                     else {
-                        utils.get(testContext.getRoot() + '/users', '/find/' + testContext.knownAdmin, true, { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
+                        utils.get(testContext.getRoot() + '/users', '/find/' + testContext.knownAdmin, { "_session": credentials.session, "_token": credentials.token }, function(err, result) {
                             if (err) return callback(err);
                             credentials.id = result.data.id;
 
@@ -153,18 +153,21 @@ describe('/inventory', function() {
         });
     });
 
-    describe('/update with method suffix', function() {
-        var method = this.title;
+    var useInventoryUpdateSuffix = !!(process.env.INVENTORY_UPDATE_SUFFIX);
+
+    describe('/update with' + (useInventoryUpdateSuffix ? '' : 'out') + ' method suffix', function() {
+        var actualMethod = '';
+        if (useInventoryUpdateSuffix)
+            actualMethod = '/update';
         var payloads = { };
 
         before(function(done) {
-            var actualMethod = method;
-
             async.series([
                 function(callback) {
                     utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.testItem = result;
+                        inventory.testItem.quantity = 10;
                         callback();
                     });
                 },
@@ -181,6 +184,7 @@ describe('/inventory', function() {
                     utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 0 }), function(err, result) {
                         if (err) return callback(err);
                         payloads.otherTestItemPass = result;
+                        inventory.otherTestItem.quantity = 0;
                         callback();
                     });
                 }
@@ -194,7 +198,7 @@ describe('/inventory', function() {
             payloads.testItem.status.should.equal('success');
             payloads.testItem.should.have.property('data');
             payloads.testItem.data.should.have.property('quantity');
-            payloads.testItem.data.quantity.should.equal(10);
+            payloads.testItem.data.quantity.should.equal(inventory.testItem.quantity);
 
             done();
         });
@@ -214,80 +218,80 @@ describe('/inventory', function() {
             payloads.otherTestItemPass.status.should.equal('success');
             payloads.otherTestItemPass.should.have.property('data');
             payloads.otherTestItemPass.data.should.have.property('quantity');
-            payloads.otherTestItemPass.data.quantity.should.equal(0);
+            payloads.otherTestItemPass.data.quantity.should.equal(inventory.otherTestItem.quantity);
 
             done();
         });
     });
 
-    describe('/update without method suffix', function() {
+    describe('/list', function() {
         var method = this.title;
-        var payloads = { };
+        var payload;
+        var fetchedInventory = { };
+        var stackableSlots = [ ];
 
         before(function(done) {
-            var actualMethod = '';//method;
+            fetchedInventory[inventory.testItem.id] = { expected: inventory.testItem };
+            fetchedInventory[inventory.otherTestItem.id] = { expected: inventory.otherTestItem };
+            utils.get(testContext.getRoot() + '/users', '/' + testUser.id + '/inventory/list', addAuth({ }), function(err, result) {
+                payload = result;
 
-            async.series([
-                function(callback) {
-                    utils.post(rootUrl, '/' + inventory.testItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
-                        if (err) return callback(err);
-                        payloads.testItem = result;
-                        callback();
-                    });
-                },
+                // TODO HACK
+                if (!payload.data)
+                    payload.data = { inventory: payload.inventory };
 
-                function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 10 }), function(err, result) {
-                        if (err) return callback(err);
-                        payloads.otherTestItemFail = result;
-                        callback();
-                    });
-                },
+                if (payload && payload.data && Array.isArray(payload.data.inventory)) {
+                    payload.data.inventory.forEach(function(slot) {
+                        if (slot.itemid === inventory.testItem.itemid)
+                            stackableSlots.push(slot);
 
-                function(callback) {
-                    utils.post(rootUrl, '/' + inventory.otherTestItem.id + actualMethod, addAuth({ quantity: 0 }), function(err, result) {
-                        if (err) return callback(err);
-                        payloads.otherTestItemPass = result;
-                        callback();
+                        if (slot.id in fetchedInventory) {
+                            if (!fetchedInventory[slot.id].actual) {
+                                fetchedInventory[slot.id].actual = slot;
+                            } else {
+                                fetchedInventory[slot.id].duplicates = true;
+                            }
+                        }
                     });
                 }
-            ], function(err) {
+
                 done();
             });
         });
 
-        it('should succeed when changing quantity of stackable item', function(done) {
-            payloads.testItem.should.have.property('status');
-            payloads.testItem.status.should.equal('success');
-            payloads.testItem.should.have.property('data');
-            payloads.testItem.data.should.have.property('quantity');
-            payloads.testItem.data.quantity.should.equal(10);
+        it('should succeed and return an inventory array', function(done) {
+            payload.should.have.property('status');
+            payload.status.should.equal('success');
+            payload.should.have.property('data');
+            payload.data.should.have.property('inventory');
+            payload.data.inventory.should.be.Array();
 
             done();
         });
 
-        it('should fail when changing quantity of non-stackable item to greater than one', function(done) {
-            payloads.otherTestItemFail.should.have.property('status');
-            payloads.otherTestItemFail.status.should.equal('fail');
-            payloads.otherTestItemFail.should.have.property('reason');
-            payloads.otherTestItemFail.reason.should.have.property('quantity');
-            payloads.otherTestItemFail.reason.quantity.toLowerCase().should.equal('invalid');
+        it('should return the stackable item', function(done) {
+            fetchedInventory[inventory.testItem.id].should.have.property('actual');
+            fetchedInventory[inventory.testItem.id].actual.quantity.toString().should.equal(inventory.testItem.quantity.toString());
+            fetchedInventory[inventory.testItem.id].actual.itemid.should.equal(inventory.testItem.itemid);
+            fetchedInventory[inventory.testItem.id].actual.shortname.should.equal(inventory.testItem.shortname);
 
             done();
         });
 
-        it('should succeed when changing quantity of non-stackable item to zero', function(done) {
-            payloads.otherTestItemPass.should.have.property('status');
-            payloads.otherTestItemPass.status.should.equal('success');
-            payloads.otherTestItemPass.should.have.property('data');
-            payloads.otherTestItemPass.data.should.have.property('quantity');
-            payloads.otherTestItemPass.data.quantity.should.equal(0);
+
+        it('should not have any duplicate of the stackable item', function(done) {
+            stackableSlots.length.should.equal(1);
+            fetchedInventory[inventory.testItem.id].should.not.have.property('duplicates');
+
+            done();
+        });
+
+        it('should not return the zeroed-out non-stackable item', function(done) {
+            fetchedInventory[inventory.otherTestItem.id].should.not.have.property('actual');
 
             done();
         });
     });
-
-
 
 
 

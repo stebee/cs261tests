@@ -178,7 +178,7 @@ describe('/users', function() {
         before(function(done) {
             this.method = method;
 
-            utils.get(rootUrl, this.method + '/' + findAccount.username, false, { "_session": expectedAccount.session, "_token": expectedAccount.token }, function(err, result) {
+            utils.get(rootUrl, this.method + '/' + findAccount.username, { "_session": expectedAccount.session, "_token": expectedAccount.token }, function(err, result) {
                 if (err) return done(err);
                 payload = result;
                 done();
@@ -256,7 +256,7 @@ describe('/users', function() {
                         avatar: 'http://lazytechguys.com/wp-content/uploads/2012/04/Wing-Commander-2-Screenshots-10.gif'
                     };
 
-                    utils.post(rootUrl, '/' + expectedAccount.id + method, body, function(err, result) {
+                    utils.post(rootUrl, '/' + findAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
                         payloads.avatar = result;
                         payloads.avatar.expectedValue = body.avatar;
@@ -300,8 +300,8 @@ describe('/users', function() {
             payloads.badPassword.should.have.property('status');
             payloads.badPassword.status.should.equal('fail');
             payloads.badPassword.should.have.property('reason');
-            payloads.badPassword.reason.should.have.property('id');
-            payloads.badPassword.reason.id.should.equal('Forbidden');
+            payloads.badPassword.reason.should.have.property('oldPassword');
+            payloads.badPassword.reason.oldPassword.should.equal('Forbidden');
             done();
         });
 
