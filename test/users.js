@@ -319,7 +319,7 @@ describe('/users', function() {
             payloads.changedPassword.status.should.equal('success');
             payloads.changedPassword.should.have.property('data');
             payloads.changedPassword.data.should.have.property('passwordChanged');
-            payloads.changedPassword.data.passwordChanged.should.equal(true);
+            payloads.changedPassword.data.passwordChanged.toString().should.equal('true');
             payloads.changedPasswordLogin.should.have.property('status');
             payloads.changedPasswordLogin.status.should.equal('success');
             done();
