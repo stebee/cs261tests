@@ -1,4 +1,5 @@
 var request = require('supertest');
+var logger = require('../superagent-logger');
 
 exports.post = function(endpoint, method, body, callback) {
     var useQuerystring = process.env.PREFER_QUERYSTRING;
@@ -14,14 +15,14 @@ exports.post = function(endpoint, method, body, callback) {
         }
     }
 
-    console.log('POST ' + JSON.stringify(req) + JSON.stringify(body));
+    if (process.env.VERBOSE_HTTP)
+        req.use(logger({outgoing: true}));
 
     req.end(function(err, response) {
-        console.log(response.text);
+        if (err) return callback(err);
         if (response.text && (!response.body || !Object.keys(response.body).length)) {
             response.body = JSON.parse(response.text);
         }
-        if (err) return callback(err);
         callback(null, response.body);
     });
 }
@@ -34,14 +35,14 @@ exports.get = function(endpoint, method, body, callback) {
     }
     // No request body on gets!
 
-   // console.log('GET ' + JSON.stringify(req) + JSON.stringify(body));
+    if (process.env.VERBOSE_HTTP)
+        req.use(logger({outgoing: true}));
 
     req.end(function(err, response) {
+        if (err) return callback(err);
         if (response.text && (!response.body || !Object.keys(response.body).length)) {
-            //console.log(response.text);
             response.body = JSON.parse(response.text);
         }
-        if (err) return callback(err);
         callback(null, response.body);
     });
 }

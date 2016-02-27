@@ -22,6 +22,9 @@
     "mocha": "latest",
     "should": "latest",
     "supertest": "latest",
+    "superagent": "latest",
+    "qs": "latest",
+    "chalk": "latest",
     "async": "latest"
   }
 }

@@ -51,7 +51,6 @@ describe('/items', function() {
             credentials.should.have.property('isAdmin');
             credentials.isAdmin.should.equal(true);
 
-            console.log(credentials);
             done();
         });
     });
