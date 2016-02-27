@@ -1,8 +1,8 @@
 var request = require('supertest');
 var logger = require('../superagent-logger');
 
-function doPost(endpoint, method, body, callback) {
-    var useQuerystring = process.env.PREFER_QUERYSTRING;
+function doPost(endpoint, method, body, callback, forceQuerystring) {
+    var useQuerystring = forceQuerystring || process.env.PREFER_QUERYSTRING;
     var req = request(endpoint).post(method);
 
     if (body) {
@@ -31,7 +31,7 @@ exports.post = doPost;
 
 exports.get = function(endpoint, method, body, callback) {
     if (process.env.POST_ALWAYS)
-        return doPost(endpoint, method, body, callback);
+        return doPost(endpoint, method, body, callback, true);
 
     var req = request(endpoint).get(method);
 
