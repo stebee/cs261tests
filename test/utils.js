@@ -1,5 +1,6 @@
 var request = require('supertest');
 var logger = require('../superagent-logger');
+var qs = require('qs');
 
 function doPost(endpoint, method, body, callback, forceQuerystring) {
     var useQuerystring = forceQuerystring || process.env.PREFER_QUERYSTRING;
@@ -7,7 +8,7 @@ function doPost(endpoint, method, body, callback, forceQuerystring) {
 
     if (body) {
         if (useQuerystring) {
-            req.query(body);
+            req.query(qs.stringify(body));
         }
         else {
             req.set('Content-Type', 'application/json');
