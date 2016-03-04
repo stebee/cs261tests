@@ -20,6 +20,11 @@ function attachSuperagentLogger(options, req) {
     var method = req.method;
 
     if(options.outgoing) {
+        var qslog = '';
+        if (req.qs) {
+            qslog = '?' + querystring.stringify(req.qs);
+        }
+
         console.log('%s %s %s %s %s %s',
             chalk.gray(
                 rightPad(uri.protocol.toUpperCase().replace(/[^\w]/g, ''), 5)
@@ -27,7 +32,7 @@ function attachSuperagentLogger(options, req) {
             chalk.gray(rightPad(method.toUpperCase(), 'delete'.length)),
             options.timestamp ? chalk.gray('[' + timestamp + ']') : '',
             chalk.gray(' - '),
-            chalk.gray(uri.href + (!(req.qs && Object.getOwnPropertyNames(req.qs).length) ? '' : '?' + querystring.stringify(req.qs))),
+            chalk.gray(uri.href + qslog),
             chalk.gray(req._data ? JSON.stringify(req._data) : '')
         );
     }
@@ -45,6 +50,11 @@ function attachSuperagentLogger(options, req) {
             st = chalk.red(st);
         }
 
+        var qslog = '';
+        if (req.qs) {
+            qslog = '?' + querystring.stringify(req.qs);
+        }
+
         console.log('%s %s %s %s %s %s %s',
             chalk.magenta(
                 rightPad(uri.protocol.toUpperCase().replace(/[^\w]/g, ''), 5)
@@ -52,7 +62,7 @@ function attachSuperagentLogger(options, req) {
             chalk.cyan(rightPad(method.toUpperCase(), 'delete'.length)),
             options.timestamp ? chalk.gray('[' + timestamp + ']') : '',
             st,
-            chalk.gray(uri.href + (!(req.qs && Object.getOwnPropertyNames(req.qs).length) ? '' : '?' + querystring.stringify(req.qs))),
+            chalk.gray(uri.href + qslog),
             chalk.gray('(') +
                 chalk[colorForSpeed(elapsed)](elapsed + 'ms') +
                 chalk.gray(')'),
