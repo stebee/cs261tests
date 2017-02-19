@@ -224,12 +224,10 @@ describe('/users', function() {
                     var body = {
                         "_session": payloads.credentials.session,
                         "_token": payloads.credentials.token,
-                        isAdmin: true
                     };
 
                     utils.post(rootUrl, '/' + findAccount.id + method, body, function(err, result) {
                         if (err) return callback(err);
-                        payloads.isAdmin = result;
                         callback();
                     });
                 },
@@ -285,15 +283,6 @@ describe('/users', function() {
             ], function() {
                 done();
             });
-        });
-
-        it('should fail to change isAdmin', function(done) {
-            payloads.isAdmin.should.have.property('status');
-            payloads.isAdmin.status.should.equal('fail');
-            payloads.isAdmin.should.have.property('reason');
-            payloads.isAdmin.reason.should.have.property('isAdmin');
-            payloads.isAdmin.reason.isAdmin.should.equal('Forbidden');
-            done();
         });
 
         it('should fail to change password if oldPassword not correct', function(done) {

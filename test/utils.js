@@ -32,7 +32,7 @@ exports.post = doPost;
 
 exports.get = function(endpoint, method, body, callback) {
     if (process.env.POST_ALWAYS)
-        return doPost(endpoint, method, body, callback, true);
+        return doPost(endpoint, method, body, callback, false);
 
     var req = request(endpoint).get(method);
 
