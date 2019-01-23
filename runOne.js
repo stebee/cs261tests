@@ -25,11 +25,24 @@ allOptions.forEach(function(option) {
 });
 
 var url = 'http';
-if (testsToRun.indexOf('ssl') >= 0)
-    url += 's';
+var port = 0;
+for (let i = 0; i < testToRun.length; i++)
+{
+    if (testsToRun[i] == 'ssl')
+        url += 's';
+    else if (testsToRun[i].substr(0,4) == 'port')
+    {
+        var args = testsToRun[i].split('=');
+        if (args.length > 1)
+            port = args[1];
+    }
+
 url += '://';
 url += student.replace(".", "-");
-url += '.cs261.net/api/v1';
+url += '.cs261.net';
+if (port)
+    url += port;
+url += '/api/v1';
 process.env.TEST_ROOT_URL = url;
 process.env.TEST_ENDPOINTS = testsToRun;
 
