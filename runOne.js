@@ -26,16 +26,17 @@ allOptions.forEach(function(option) {
 
 var url = 'http';
 var port = 0;
-for (let i = 0; i < testToRun.length; i++)
+for (let i = 0; i < allOptions.length; i++)
 {
-    if (testsToRun[i] == 'ssl')
+    if (allOptions[i] == 'ssl')
         url += 's';
-    else if (testsToRun[i].substr(0,4) == 'port')
+    else if (allOptions[i].substr(0,4) == 'port')
     {
-        var args = testsToRun[i].split('=');
+        var args = allOptions[i].split('=');
         if (args.length > 1)
             port = args[1];
     }
+}
 
 url += '://';
 url += student.replace(".", "-");
